@@ -10,30 +10,51 @@
 DHT dht(DHTPIN, DHTTYPE);
 
 const char* host = "ufoiot.azurewebsites.net";
-const char* ssid     = "Enceladus";
-const char* password = "11111112";
+const int httpPort = 80;
+
+const char* ssid[]     = {"Enceladus","rnds"};
+const char* password[] = {"11111112","20011983"};
 
 void setup() {
   pinMode(LED_SCL, OUTPUT);   
+  
   Serial.begin(9600);
-  delay(10);
-  Serial.println("DHT21 Vers 1.01");
+  delay(100);
+  
+  for (int i=0;i<2;i++)
+  {
+    Serial.println("DHT21 Vers 1.02");
+  
+    Serial.println();
+    Serial.print("Connecting to ");
+    Serial.println(ssid[i]);
+    
+    WiFi.begin(ssid[i], password[i]);
+  
+    int tr = 0;
+    
+    while (WiFi.status() != WL_CONNECTED) 
+    {
+      delay(500);
+      Serial.print(".");
+      if ((i==0)&(tr++>20)) break;
+    }
 
-Serial.println();
-  Serial.print("Connecting to ");
-  Serial.println(ssid);
-  
-  WiFi.begin(ssid, password);
-  
-  while (WiFi.status() != WL_CONNECTED) {
-    delay(500);
-    Serial.print(".");
+    if (WiFi.status() == WL_CONNECTED)
+    {
+      Serial.println("");
+      Serial.println("WiFi connected");  
+        
+      Serial.println("IP address: ");
+      Serial.println(WiFi.localIP());  
+      break;
+    }
+    else
+    {
+      Serial.println("");
+      Serial.println("failed connection!");  
+    }
   }
-
-  Serial.println("");
-  Serial.println("WiFi connected");  
-  Serial.println("IP address: ");
-  Serial.println(WiFi.localIP());
   
   dht.begin();
 }
@@ -41,7 +62,7 @@ Serial.println();
 int value = 0;
 
 void loop() {
-  delay(2000);
+  delay(10000);
   ++value;
   float h = dht.readHumidity();
   float t = dht.readTemperature();
@@ -66,13 +87,15 @@ void loop() {
   Serial.print("connecting to ");
   Serial.println(host);
   
-  // Use WiFiClient class to create TCP connections
   WiFiClient client;
-  const int httpPort = 80;
-  if (!client.connect(host, httpPort)) {
+  if (!client.connect(host, httpPort)) 
+  {
     Serial.println("connection failed");
     return;
   }
+
+  digitalWrite(LED_SCL, HIGH);
+  delay(600);
   
   // We now create a URI for the request
   String url = "http://ufoiot.azurewebsites.net/weather";
@@ -80,30 +103,30 @@ void loop() {
   Serial.print("Requesting URL: ");
   Serial.println(url);
   
-  String ss = "{\"Temperature\":\""+String(t)+"\",\"Humidity\":\""+String(h)+"\"}";
+  String ss = "{\"ID\":\"GEO-01\",\"Temperature\":\""+String(t)+"\",\"Humidity\":\""+String(h)+"\"}";
 
   Serial.print("POST: ");
   Serial.println(ss);
 
   client.println("POST /weather HTTP/1.1");
-client.println("Host: ufoiot.azurewebsites.net");
-client.println("Cache-Control: no-cache");
-client.println("Content-Type: application/json");
-client.print("Content-Length: ");
-client.println(ss.length());
-client.println();
-client.println(ss);
+  client.println("Host: ufoiot.azurewebsites.net");
+  client.println("Cache-Control: no-cache");
+  client.println("Content-Type: application/json");
+  client.print("Content-Length: ");
+  client.println(ss.length());
+  client.println();
+  client.println(ss);
                
-  client.print(ss);
   unsigned long timeout = millis();
-  while (client.available() == 0) {
+  while (client.available() == 0) 
+  {
     if (millis() - timeout > 5000) {
-      Serial.println(">>> Client Timeout !");
+      Serial.println("Client Timeout !");
       client.stop();
       return;
     }
   }
-  
+
   // Read all the lines of the reply from server and print them to Serial
   while(client.available()){
     String line = client.readStringUntil('\r');
@@ -127,5 +150,7 @@ client.println(ss);
   
   Serial.println();
   Serial.println("closing connection");    
+  digitalWrite(LED_SCL, LOW);
+  
 }
 
