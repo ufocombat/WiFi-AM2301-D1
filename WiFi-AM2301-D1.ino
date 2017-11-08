@@ -15,6 +15,8 @@ const int httpPort = 80;
 const char* ssid[]     = {"Enceladus","rnds"};
 const char* password[] = {"11111112","20011983"};
 
+int dell = 10000;
+
 void setup() {
   pinMode(LED_SCL, OUTPUT);   
   
@@ -62,7 +64,7 @@ void setup() {
 int value = 0;
 
 void loop() {
-  delay(10000);
+  delay(dell);
   ++value;
   float h = dht.readHumidity();
   float t = dht.readTemperature();
@@ -71,10 +73,6 @@ void loop() {
     return;
   }
   
-  digitalWrite(LED_SCL, HIGH);
-  delay(600);
-  digitalWrite(LED_SCL, LOW);
-
   Serial.print("Humidity: ");
   Serial.print(h);
   Serial.print(" %\t");
@@ -95,10 +93,60 @@ void loop() {
   }
 
   digitalWrite(LED_SCL, HIGH);
-  delay(600);
+
+// Settings request
+  String url = "http://ufoiot.azurewebsites.net/settings";
+/*  url += streamId;
+  url += "?private_key=";
+  url += privateKey;
+  url += "&value=";
+  url += value;*/
+  
+  Serial.print("Requesting URL: ");
+  Serial.println(url);
+  
+  client.println(String("GET ")+url+" HTTP/1.1");
+  client.println("Host: ufoiot.azurewebsites.net");
+  client.println("Connection: close\r\n\r\n");
+  
+  unsigned long timeout = millis();
+  
+  while (client.available() == 0) {
+    if (millis() - timeout > 5000) {
+      Serial.println(">>> Client Timeout !");
+      client.stop();
+      return;
+    }
+  }
+  
+  // Read all the lines of the reply from server and print them to Serial
+  while(client.available()){
+    String line = client.readStringUntil('\r');
+//    Serial.print(line);
+
+    int w1 = line.indexOf("dellay=");
+    
+    if (w1>0)
+    {
+      int w2 = line.indexOf("'}",w1+8);
+      String w3 = line.substring(w1+8,w2);
+      dell = w3.toInt();
+      Serial.print("Setting dellay to ");
+      Serial.println(dell);
+    }
+  }
+
+
+
+  if (!client.connect(host, httpPort)) 
+  {
+    Serial.println("connection failed");
+    return;
+  }
+  
   
   // We now create a URI for the request
-  String url = "http://ufoiot.azurewebsites.net/weather";
+  url = "http://ufoiot.azurewebsites.net/weather";
   
   Serial.print("Requesting URL: ");
   Serial.println(url);
@@ -117,7 +165,7 @@ void loop() {
   client.println();
   client.println(ss);
                
-  unsigned long timeout = millis();
+  //unsigned long timeout = millis();
   while (client.available() == 0) 
   {
     if (millis() - timeout > 5000) {
