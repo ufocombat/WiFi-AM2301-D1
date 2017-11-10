@@ -9,8 +9,11 @@ const String  vers = "2.2";
 const char* host = "ufoiot.azurewebsites.net";
 const int httpPort = 80;
 
-const char* ssid[]     = {"Enceladus","rnds"};
-const char* password[] = {"11111112","20011983"};
+const char* ssid[]     = {"Enceladus","Astra"};
+const char* password[] = {"11111112","BrahmAstra"};
+
+/*const char* ssid[]     = {"Enceladus","rnds"};
+const char* password[] = {"11111112","20011983"};*/
 
 int dell = 10000;
 String _ssid="";
@@ -23,7 +26,7 @@ void setup() {
   
   for (int i=0;i<2;i++)
   {
-    Serial.println("DHT21 Vers 1.02");
+    Serial.println("DHT21 "+vers);
   
     Serial.println();
     Serial.print("Connecting to ");
@@ -54,7 +57,7 @@ void setup() {
     {
       Serial.println("");
       Serial.println("failed connection!");  
-    }
+    }    
   }
   
   dht.begin();
@@ -150,7 +153,7 @@ void loop() {
   Serial.print("Requesting URL: ");
   Serial.println(url);
   
-  String ss = "{\"ID\":\"GEO-01\",\"Temperature\":\""+String(t)+"\",\"Humidity\":\""+String(h)+"\",\"sid\":\""+_ssid+"\",\"Version\":\""+vers+"\"}";
+  String ss = "{\"ID\":\"GEO-01\",\"Temperature\":\""+String(t)+"\",\"Humidity\":\""+String(h)+"\",\"ssid\":\""+_ssid+"\",\"Version\":\""+vers+"\"}";
 
   Serial.print("POST: ");
   Serial.println(ss);
@@ -167,9 +170,10 @@ void loop() {
   //unsigned long timeout = millis();
   while (client.available() == 0) 
   {
-    if (millis() - timeout > 5000) {
+    if (millis() - timeout > 10000) {
       Serial.println("Client Timeout !");
       client.stop();
+      digitalWrite(LED_SCL, LOW);
       return;
     }
   }
