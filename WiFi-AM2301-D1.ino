@@ -1,7 +1,3 @@
-/*
- * Рабочая версия 2.0
- */
-  
 #include <ESP8266WiFi.h>
 #include "DHT.h"
 #define DHTPIN D7
@@ -9,6 +5,7 @@
 #define DHTTYPE DHT21
 DHT dht(DHTPIN, DHTTYPE);
 
+const String  vers = "2.2";
 const char* host = "ufoiot.azurewebsites.net";
 const int httpPort = 80;
 
@@ -16,6 +13,7 @@ const char* ssid[]     = {"Enceladus","rnds"};
 const char* password[] = {"11111112","20011983"};
 
 int dell = 10000;
+String _ssid="";
 
 void setup() {
   pinMode(LED_SCL, OUTPUT);   
@@ -32,6 +30,7 @@ void setup() {
     Serial.println(ssid[i]);
     
     WiFi.begin(ssid[i], password[i]);
+    _ssid = ssid[i];
   
     int tr = 0;
     
@@ -112,8 +111,8 @@ void loop() {
   unsigned long timeout = millis();
   
   while (client.available() == 0) {
-    if (millis() - timeout > 5000) {
-      Serial.println(">>> Client Timeout !");
+    if (millis() - timeout > 10000) {
+      Serial.println("<Client Timeout !>");
       client.stop();
       return;
     }
@@ -151,7 +150,7 @@ void loop() {
   Serial.print("Requesting URL: ");
   Serial.println(url);
   
-  String ss = "{\"ID\":\"GEO-01\",\"Temperature\":\""+String(t)+"\",\"Humidity\":\""+String(h)+"\"}";
+  String ss = "{\"ID\":\"GEO-01\",\"Temperature\":\""+String(t)+"\",\"Humidity\":\""+String(h)+"\",\"sid\":\""+_ssid+"\",\"Version\":\""+vers+"\"}";
 
   Serial.print("POST: ");
   Serial.println(ss);
