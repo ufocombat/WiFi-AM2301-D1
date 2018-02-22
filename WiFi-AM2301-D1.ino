@@ -153,7 +153,13 @@ void loop() {
   Serial.print("Requesting URL: ");
   Serial.println(url);
   
-  String ss = "{\"ID\":\"GEO-01\",\"Temperature\":\""+String(t)+"\",\"Humidity\":\""+String(h)+"\",\"ssid\":\""+_ssid+"\",\"Version\":\""+vers+"\"}";
+  String ss = "{";
+  ss+="\"ID\":\"GEO-01\",";
+  ss+="\"Temperature\":\""+String(t)+"\",";
+  ss+="\"Humidity\":\""+String(h)+"\",";
+  ss+="\"Term\":\""+0+"\",";
+  ss+="\"ssid\":\""+_ssid+"\",\"Version\":\""+vers+""\";
+  ss+="}";
 
   Serial.print("POST: ");
   Serial.println(ss);
