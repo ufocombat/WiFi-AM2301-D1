@@ -154,11 +154,11 @@ void loop() {
   Serial.println(url);
   
   String ss = "{";
-  ss+="\"ID\":\"GEO-01\",";
+  ss+="\"ID\":\"GEO-02\",";
   ss+="\"Temperature\":\""+String(t)+"\",";
   ss+="\"Humidity\":\""+String(h)+"\",";
-  ss+="\"Term\":\""+0+"\",";
-  ss+="\"ssid\":\""+_ssid+"\",\"Version\":\""+vers+""\";
+  ss+="\"Term\":\"0\",";
+  ss+="\"ssid\":\""+_ssid+"\",\"Version\":\""+vers+"\"";
   ss+="}";
 
   Serial.print("POST: ");
