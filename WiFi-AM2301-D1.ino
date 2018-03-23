@@ -5,7 +5,7 @@
 #define DHTTYPE DHT21
 DHT dht(DHTPIN, DHTTYPE);
 
-const String  vers = "2.4";
+const String  vers = "2.42";
 const char* host = "ufoiot.azurewebsites.net";
 const int httpPort = 80;
 
@@ -107,7 +107,8 @@ void loop() {
   digitalWrite(LED_SCL, HIGH);
 
 // Settings request
-  String url = "http://ufoiot.azurewebsites.net/settings";
+//  String url = "http://ufoiot.azurewebsites.net/settings";
+   String url = "https://ufoiot2.azurewebsites.net/api/settings";  
 /*  url += streamId;
   url += "?private_key=";
   url += privateKey;
@@ -118,7 +119,7 @@ void loop() {
   Serial.println(url);
   
   client.println(String("GET ")+url+" HTTP/1.1");
-  client.println("Host: ufoiot.azurewebsites.net");
+  client.println("Host: ufoiot2.azurewebsites.net");
   client.println("Connection: close\r\n\r\n");
   
   unsigned long timeout = millis();
